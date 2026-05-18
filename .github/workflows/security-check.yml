@@ -1,0 +1,29 @@
+name: Security Check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-safety:
+    name: Public Safety Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Scan for secrets and unsafe runtime patterns
+        run: php scripts/security-check.php
+
+      - name: Verify forbidden runtime artifacts are not tracked
+        run: php scripts/repository-hygiene.php

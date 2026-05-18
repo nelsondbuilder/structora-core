@@ -1,0 +1,8 @@
+# Default ownership for public infrastructure, schema, and safety-sensitive changes.
+* @structora/maintainers
+
+/.github/ @structora/maintainers
+/src/Core/ @structora/maintainers
+/src/Detection/ @structora/maintainers
+/src/Workflow/ @structora/maintainers
+/docs/ @structora/maintainers
