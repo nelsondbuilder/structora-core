@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Structora\Core\DiscoveryEngine;
 use Structora\Core\DiscoveryOptions;
 use Structora\Core\DiscoveryResult;
+use Structora\Rendering\StaticHtmlRenderer;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -18,6 +19,8 @@ function printHelp(): void
     echo "  structora discover-file <path>\n";
     echo "  structora inspect-file <path>\n";
     echo "  structora summary-file <path>\n";
+    echo "  structora render-file <path>\n";
+    echo "  structora inspect-render <path>\n";
     echo "  structora version\n";
     echo "  structora help\n\n";
     echo "Safety:\n";
@@ -64,7 +67,7 @@ function resolveLocalHtmlFile(string $path): string
     return $resolvedPath;
 }
 
-function discoverLocalFile(string $path, string $command): DiscoveryResult
+function readLocalHtmlFile(string $path): array
 {
     $resolvedPath = resolveLocalHtmlFile($path);
     $html = file_get_contents($resolvedPath);
@@ -73,10 +76,23 @@ function discoverLocalFile(string $path, string $command): DiscoveryResult
         fail("Unable to read file: {$path}");
     }
 
-    return (new DiscoveryEngine())->discover(
+    return [$resolvedPath, $html];
+}
+
+function discoverLocalFile(string $path, string $command, bool $render = false): DiscoveryResult
+{
+    [$resolvedPath, $html] = readLocalHtmlFile($path);
+    $engine = new DiscoveryEngine();
+
+    if ($render) {
+        $engine = $engine->withRenderer(new StaticHtmlRenderer());
+    }
+
+    return $engine->discover(
         $html,
         DiscoveryOptions::fromArray([
             'source' => $resolvedPath,
+            'rendering_enabled' => $render,
             'metadata' => [
                 'input_type' => 'local_file',
                 'command' => $command,
@@ -95,6 +111,7 @@ function inspectPayload(array $payload): array
         'title' => $payload['title'],
         'summary' => $payload['summary'],
         'metadata' => $payload['metadata'],
+        'rendering' => $payload['rendering'],
         'forms' => $payload['forms'],
         'links' => $payload['links'],
         'headings' => $payload['headings'],
@@ -122,6 +139,14 @@ function summaryPayload(array $payload): array
             'signal_types' => $payload['summary']['signal_types'],
             'workflow_count' => $payload['summary']['workflow_count'],
             'workflow_types' => $payload['summary']['workflow_types'],
+            'rendered' => $payload['summary']['rendered'],
+            'render_strategy' => $payload['summary']['render_strategy'],
+        ],
+        'rendering' => [
+            'rendered' => $payload['rendering']['rendered'],
+            'strategy' => $payload['rendering']['strategy'],
+            'duration_ms' => $payload['rendering']['duration_ms'],
+            'document_length' => $payload['rendering']['document_length'],
         ],
         'signal_confidence' => $payload['signal_summary']['confidence'],
         'workflow_confidence' => $payload['workflow_summary']['confidence_summary'],
@@ -160,11 +185,38 @@ if ($command === 'discover') {
     exit(0);
 }
 
-if (in_array($command, ['discover-file', 'inspect-file', 'summary-file'], true)) {
-    $result = discoverLocalFile($argv[2] ?? '', $command);
+if ($command === 'render-file') {
+    [$resolvedPath, $html] = readLocalHtmlFile($argv[2] ?? '');
+    $result = (new StaticHtmlRenderer())->render($html, [
+        'source' => $resolvedPath,
+        'metadata' => [
+            'input_type' => 'local_file',
+            'command' => $command,
+        ],
+    ]);
+
+    writeJson([
+        'schema_version' => DiscoveryResult::SCHEMA_VERSION,
+        'source' => $resolvedPath,
+        'rendering' => $result->toArray(includeHtml: false),
+        'rendered_summary' => [
+            'rendered' => $result->metadata->rendered,
+            'strategy' => $result->metadata->strategy,
+            'duration_ms' => $result->metadata->durationMs,
+            'document_length' => strlen($result->document->html),
+            'read_only' => true,
+            'non_executable' => true,
+        ],
+    ]);
+    exit(0);
+}
+
+if (in_array($command, ['discover-file', 'inspect-file', 'summary-file', 'inspect-render'], true)) {
+    $render = $command === 'inspect-render';
+    $result = discoverLocalFile($argv[2] ?? '', $command, $render);
     $payload = $result->toArray();
 
-    if ($command === 'inspect-file') {
+    if ($command === 'inspect-file' || $command === 'inspect-render') {
         $payload = inspectPayload($payload);
     }
 

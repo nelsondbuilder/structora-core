@@ -30,6 +30,17 @@ Structora Core discovery results use a versioned public schema. The current sche
     "network_access": false,
     "filesystem_writes": false
   },
+  "rendering": {
+    "rendered": false,
+    "strategy": "none",
+    "duration_ms": 0,
+    "document_length": 0,
+    "metadata": {
+      "read_only": true,
+      "non_executable": true
+    },
+    "errors": []
+  },
   "forms": [],
   "links": [],
   "headings": [],
@@ -74,6 +85,7 @@ Structora Core discovery results use a versioned public schema. The current sche
 | `title` | string | Parsed document title when available. |
 | `summary` | object | Counts and high-level discovery totals. |
 | `metadata` | object | Safety, engine, parser, detector, and mapper metadata. |
+| `rendering` | object | Passive rendering status, strategy, duration, and metadata. |
 | `forms` | array | Parsed form structures. |
 | `links` | array | Parsed links. |
 | `headings` | array | Parsed headings. |

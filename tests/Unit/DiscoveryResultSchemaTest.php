@@ -22,6 +22,7 @@ final class DiscoveryResultSchemaTest extends TestCase
             'title',
             'summary',
             'metadata',
+            'rendering',
             'forms',
             'links',
             'headings',
@@ -50,6 +51,8 @@ final class DiscoveryResultSchemaTest extends TestCase
         self::assertSame([], $payload['headings']);
         self::assertSame([], $payload['signals']);
         self::assertSame([], $payload['workflow']);
+        self::assertFalse($payload['rendering']['rendered']);
+        self::assertSame('none', $payload['rendering']['strategy']);
         self::assertTrue($payload['metadata']['read_only']);
         self::assertFalse($payload['metadata']['execution_required']);
         self::assertFalse($payload['metadata']['network_access']);

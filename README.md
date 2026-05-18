@@ -11,6 +11,7 @@ Structora Core is a read-only structure intelligence and workflow discovery engi
 - Extracts forms, fields, buttons, links, headings, title, and metadata
 - Detects passive structural signals
 - Maps high-level workflow states
+- Optionally records passive rendered DOM metadata
 - Returns a stable `DiscoveryResult` schema
 
 ## What It Does Not Do
@@ -38,6 +39,8 @@ php bin/structora version
 php bin/structora discover-file examples/fixtures/synthetic-auth-flow.html
 php bin/structora inspect-file examples/fixtures/synthetic-search-flow.html
 php bin/structora summary-file examples/fixtures/synthetic-auth-flow.html
+php bin/structora render-file examples/fixtures/rendered-search-page.html
+php bin/structora inspect-render examples/fixtures/rendered-search-page.html
 ```
 
 CLI commands read local files only and output JSON.
@@ -64,7 +67,11 @@ The current schema version is `0.1.0-alpha`.
 
 ## Safety Guarantees
 
-Structora Core is passive by design. It performs no network requests, no browser actions, no workflow execution, and no form submission. Fixtures are synthetic and public-safe.
+Structora Core is passive by design. It performs no network requests, no browser actions, no workflow execution, and no form submission. Rendering support is limited to read-only snapshot acquisition and metadata. Fixtures are synthetic and public-safe.
+
+## Rendering Model
+
+The rendering layer exposes `RendererInterface`, `RenderResult`, `RenderedDocument`, and `RenderedMetadata`. `StaticHtmlRenderer` is local-only and normalizes provided HTML. The optional Playwright adapter is a disabled scaffold for future rendered DOM acquisition and must remain non-interactive.
 
 ## Testing
 

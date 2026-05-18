@@ -14,6 +14,8 @@ use Structora\Extension\ExtensionInterface;
 use Structora\Extension\ResultEnricherInterface;
 use Structora\Interpretation\InterpretationProviderInterface;
 use Structora\Interpretation\NullInterpretationProvider;
+use Structora\Rendering\NullRenderer;
+use Structora\Rendering\RenderResult;
 use Structora\Rendering\RendererInterface;
 use Structora\Workflow\WorkflowCollection;
 use Structora\Workflow\WorkflowMapper;
@@ -72,13 +74,15 @@ final class DiscoveryEngine
     public function discover(string $document, ?DiscoveryOptions $options = null): DiscoveryResult
     {
         $options ??= new DiscoveryOptions();
+        $renderResult = $this->renderDocument($document, $options);
+        $documentForParsing = $renderResult->metadata->rendered ? $renderResult->document->html : $document;
 
-        $parsedDocument = $this->structureParser->parse($document, [
+        $parsedDocument = $this->structureParser->parse($documentForParsing, [
             'source' => $options->source,
             'metadata' => $options->metadata,
         ]);
 
-        $result = $this->buildResult($parsedDocument, $options);
+        $result = $this->buildResult($parsedDocument, $options, $renderResult);
 
         foreach ($this->extensions as $extension) {
             $extension->boot($this);
@@ -97,6 +101,7 @@ final class DiscoveryEngine
                 summary: $result->summary,
                 title: $result->title,
                 metadata: $result->metadata,
+                rendering: $result->rendering,
                 forms: $result->forms,
                 links: $result->links,
                 headings: $result->headings,
@@ -113,7 +118,21 @@ final class DiscoveryEngine
         return $result;
     }
 
-    private function buildResult(ParsedDocument $parsedDocument, DiscoveryOptions $options): DiscoveryResult
+    private function renderDocument(string $document, DiscoveryOptions $options): RenderResult
+    {
+        if (!$options->renderingEnabled) {
+            return RenderResult::skipped($options->source, 'not_requested');
+        }
+
+        $renderer = $this->renderer ?? new NullRenderer();
+
+        return $renderer->render($document, [
+            'source' => $options->source,
+            'metadata' => $options->metadata,
+        ]);
+    }
+
+    private function buildResult(ParsedDocument $parsedDocument, DiscoveryOptions $options, RenderResult $renderResult): DiscoveryResult
     {
         $parsed = $parsedDocument->toArray();
         $summary = array_merge([
@@ -136,6 +155,8 @@ final class DiscoveryEngine
         $workflowSummary = $workflowCollection->summary();
         $summary['workflow_count'] = $workflowSummary['workflow_count'];
         $summary['workflow_types'] = $workflowSummary['workflow_types'];
+        $summary['rendered'] = $renderResult->metadata->rendered;
+        $summary['render_strategy'] = $renderResult->metadata->strategy;
 
         return new DiscoveryResult(
             status: true,
@@ -156,6 +177,7 @@ final class DiscoveryEngine
                 'input_metadata' => $options->metadata,
                 'renderer_configured' => $this->renderer instanceof RendererInterface,
                 'interpretation_enabled' => $options->interpretationEnabled,
+                'rendering_enabled' => $options->renderingEnabled,
                 'extraction_counts' => [
                     'forms' => $summary['form_count'] ?? 0,
                     'fields' => $summary['field_count'] ?? 0,
@@ -164,6 +186,7 @@ final class DiscoveryEngine
                     'headings' => $summary['heading_count'] ?? 0,
                 ],
             ]),
+            rendering: $renderResult->toArray(includeHtml: false),
             forms: $parsed['forms'],
             links: $parsed['links'],
             headings: $parsed['headings'],

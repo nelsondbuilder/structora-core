@@ -20,6 +20,17 @@
     "network_access": false,
     "filesystem_writes": false
   },
+  "rendering": {
+    "rendered": false,
+    "strategy": "none",
+    "duration_ms": 0,
+    "document_length": 0,
+    "metadata": {
+      "read_only": true,
+      "non_executable": true
+    },
+    "errors": []
+  },
   "forms": [],
   "links": [],
   "headings": [],

@@ -14,6 +14,7 @@ final class DiscoveryResult
         public readonly array $summary,
         public readonly string $title = '',
         public readonly array $metadata = [],
+        public readonly array $rendering = [],
         public readonly array $forms = [],
         public readonly array $links = [],
         public readonly array $headings = [],
@@ -56,6 +57,7 @@ final class DiscoveryResult
             'title' => $this->title,
             'summary' => $this->normalizeSummary($this->summary),
             'metadata' => $this->normalizeMetadata($this->metadata),
+            'rendering' => $this->normalizeRendering($this->rendering),
             'forms' => array_values($this->forms),
             'links' => array_values($this->links),
             'headings' => array_values($this->headings),
@@ -94,6 +96,8 @@ final class DiscoveryResult
             'signal_types' => [],
             'workflow_count' => 0,
             'workflow_types' => [],
+            'rendered' => false,
+            'render_strategy' => 'none',
         ], $summary);
     }
 
@@ -110,6 +114,7 @@ final class DiscoveryResult
             'workflow_mapper' => '',
             'input_metadata' => [],
             'renderer_configured' => false,
+            'rendering_enabled' => false,
             'interpretation_enabled' => false,
             'extraction_counts' => [
                 'forms' => 0,
@@ -119,6 +124,25 @@ final class DiscoveryResult
                 'headings' => 0,
             ],
         ], $metadata);
+    }
+
+    private function normalizeRendering(array $rendering): array
+    {
+        return array_merge([
+            'rendered' => false,
+            'strategy' => 'none',
+            'duration_ms' => 0,
+            'document_length' => 0,
+            'metadata' => [
+                'rendered' => false,
+                'strategy' => 'none',
+                'duration_ms' => 0,
+                'details' => [],
+                'read_only' => true,
+                'non_executable' => true,
+            ],
+            'errors' => [],
+        ], $rendering);
     }
 
     private function normalizeSignalSummary(array $summary): array

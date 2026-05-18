@@ -4,6 +4,7 @@ Structora Core is a read-only structure intelligence pipeline for provided HTML 
 
 ```text
 HTML string or local file
+  -> optional passive rendering
   -> StructureParser
   -> PassiveSignalDetector
   -> WorkflowMapper
@@ -15,6 +16,7 @@ HTML string or local file
 ## Components
 
 - `StructureParserInterface`: parses a provided HTML string with `DOMDocument` and `DOMXPath`.
+- `RendererInterface`: optionally returns a read-only rendered HTML snapshot and render metadata.
 - `DetectorInterface`: detects passive structural signals from a parsed document.
 - `WorkflowMapperInterface`: maps parsed structure and signals into high-level workflow states.
 - `DiscoveryEngine`: orchestrates parsing, detection, workflow mapping, enrichers, and optional interpretation.

@@ -7,6 +7,8 @@ $commands = [
     ['version'],
     ['summary-file', 'examples/fixtures/synthetic-auth-flow.html'],
     ['inspect-file', 'examples/fixtures/synthetic-search-flow.html'],
+    ['render-file', 'examples/fixtures/rendered-search-page.html'],
+    ['inspect-render', 'examples/fixtures/rendered-search-page.html'],
 ];
 
 foreach ($commands as $parts) {

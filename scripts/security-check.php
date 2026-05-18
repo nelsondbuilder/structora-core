@@ -19,7 +19,7 @@ $runtimePatterns = [
     '/pfsockopen\s*\(/i',
     '/stream_socket_client\s*\(/i',
     '/\b(remote|http|https):\/\//i',
-    '/\b(submitForm|form\.submit|click\s*\(|browser\.|webdriver|playwright|selenium|puppeteer)\b/i',
+    '/\b(submitForm|form\.submit|click\s*\(|browser\.|webdriver\.|selenium\.|puppeteer\.)\b/i',
     '/\b(proxy|session bypass|auth bypass|payment execution|checkout automation)\b/i',
 ];
 

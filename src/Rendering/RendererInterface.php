@@ -6,5 +6,5 @@ namespace Structora\Rendering;
 
 interface RendererInterface
 {
-    public function render(string $source, array $options = []): array;
+    public function render(string $source, array $options = []): RenderResult;
 }
