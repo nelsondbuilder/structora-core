@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Structora\Core\DiscoveryEngine;
 use Structora\Core\DiscoveryOptions;
 use Structora\Core\DiscoveryResult;
+use Structora\Core\ReleaseMetadata;
 use Structora\Export\JsonExporter;
 use Structora\Export\MarkdownExporter;
 use Structora\Export\SummaryExporter;
@@ -29,6 +30,8 @@ function printHelp(): void
     echo "  structora export-markdown <path>\n";
     echo "  structora version\n";
     echo "  structora help\n\n";
+    echo "Version:\n";
+    echo "  " . ReleaseMetadata::TAG . " (schema " . ReleaseMetadata::SCHEMA_VERSION . ")\n\n";
     echo "Safety:\n";
     echo "  Local files only. No remote fetching, browser actions, form submission, or workflow execution.\n";
 }
@@ -172,12 +175,7 @@ if ($command === 'help' || in_array($command, ['-h', '--help'], true)) {
 }
 
 if ($command === 'version') {
-    writeJson([
-        'name' => 'structora/core',
-        'version' => DiscoveryResult::SCHEMA_VERSION,
-        'schema_version' => DiscoveryResult::SCHEMA_VERSION,
-        'read_only' => true,
-    ]);
+    writeJson(ReleaseMetadata::toArray());
     exit(0);
 }
 

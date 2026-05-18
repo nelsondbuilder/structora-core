@@ -2,6 +2,8 @@
 
 Structora Core discovery results use a versioned public schema. The current schema is:
 
+Release tag: `v0.1.0-alpha`
+
 ```json
 {
   "schema_version": "0.1.0-alpha",

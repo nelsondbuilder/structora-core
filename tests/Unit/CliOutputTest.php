@@ -15,6 +15,9 @@ final class CliOutputTest extends TestCase
 
         self::assertSame('structora/core', $payload['name']);
         self::assertSame(DiscoveryResult::SCHEMA_VERSION, $payload['schema_version']);
+        self::assertSame('0.1.0-alpha', $payload['version']);
+        self::assertSame('v0.1.0-alpha', $payload['tag']);
+        self::assertSame('alpha', $payload['release_stage']);
         self::assertTrue($payload['read_only']);
     }
 

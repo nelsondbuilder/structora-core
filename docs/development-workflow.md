@@ -45,3 +45,5 @@ Do not commit runtime artifacts such as logs, HAR files, screenshots, traces, co
 ## Release Philosophy
 
 Structora Core follows semantic versioning expectations. During the `0.x` line, schema and API changes are allowed but must be explicit, documented, and covered by tests. Every result includes `schema_version` so downstream tooling can adapt deliberately.
+
+Current release target: `v0.1.0-alpha`.

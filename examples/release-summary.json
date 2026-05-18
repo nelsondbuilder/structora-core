@@ -1,0 +1,19 @@
+{
+  "name": "structora/core",
+  "version": "0.1.0-alpha",
+  "tag": "v0.1.0-alpha",
+  "schema_version": "0.1.0-alpha",
+  "release_stage": "alpha",
+  "read_only": true,
+  "non_executable": true,
+  "milestones": [
+    "versioned discovery schema",
+    "passive structure parsing",
+    "passive signal detection",
+    "workflow mapping",
+    "passive rendering metadata",
+    "extension pipeline",
+    "result exporters",
+    "CI and repository hygiene"
+  ]
+}

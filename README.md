@@ -2,8 +2,16 @@
 
 [![CI](https://github.com/structora/core/actions/workflows/ci.yml/badge.svg)](https://github.com/structora/core/actions/workflows/ci.yml)
 [![Security Check](https://github.com/structora/core/actions/workflows/security-check.yml/badge.svg)](https://github.com/structora/core/actions/workflows/security-check.yml)
+[![Release](https://img.shields.io/badge/release-v0.1.0--alpha-blue)](https://github.com/structora/core/releases)
 
-Structora Core is a read-only structure intelligence and workflow discovery engine for developer infrastructure. It analyzes provided HTML input and returns a stable, versioned discovery result.
+Structora Core is a read-only structure intelligence and workflow discovery framework for developer infrastructure. It analyzes provided HTML input, optionally records passive rendered DOM metadata, detects structural signals, maps workflow states, and exports stable discovery results.
+
+Current release: `v0.1.0-alpha`  
+Schema version: `0.1.0-alpha`
+
+## Project Vision
+
+Structora Core exists to make web interface structure understandable without turning analysis into automation. It is designed for developer tools, CI checks, documentation systems, and workflow intelligence pipelines that need stable, public-safe discovery output.
 
 ## What It Does
 
@@ -11,31 +19,60 @@ Structora Core is a read-only structure intelligence and workflow discovery engi
 - Extracts forms, fields, buttons, links, headings, title, and metadata
 - Detects passive structural signals
 - Maps high-level workflow states
-- Optionally records passive rendered DOM metadata
-- Returns a stable `DiscoveryResult` schema
+- Records passive rendering metadata when explicitly enabled
+- Runs read-only extension enrichers
+- Exports deterministic JSON, summary text, and Markdown
 
 ## What It Does Not Do
 
-- Does not fetch remote URLs
+- Does not fetch remote URLs through the public CLI
 - Does not submit forms
-- Does not drive a browser
+- Does not drive browsers
 - Does not execute workflows
 - Does not process payments
 - Does not solve challenges
-- Does not bypass authentication or sessions
+- Does not bypass authentication, sessions, or access controls
 
-## Architecture
+## Architecture Overview
 
 ```text
-Input HTML -> StructureParser -> PassiveSignalDetector -> WorkflowMapper -> DiscoveryResult
+Input HTML or local file
+  -> optional passive rendering
+  -> StructureParser
+  -> PassiveSignalDetector
+  -> WorkflowMapper
+  -> ExtensionPipeline
+  -> DiscoveryResult
+  -> optional Exporter
 ```
 
-The core pipeline is observational. Optional enrichers and interpretation providers can add read-only context without changing that safety boundary.
+## Workflow Intelligence
+
+Structora maps observational workflow states such as `search_flow`, `auth_flow`, `multi_step_flow`, `challenge_flow`, `confirmation_flow`, `navigation_hub`, `form_flow`, and `informational_page`. These states are not automation steps.
+
+## Rendering Overview
+
+Rendering is passive snapshot acquisition. `StaticHtmlRenderer` normalizes provided HTML locally. The optional Playwright adapter is a disabled scaffold and must remain non-interactive.
+
+## Extension System
+
+Extensions enrich discovery results with metadata and summaries. They are immutable, read-only, and non-destructive. Example extensions demonstrate signal summary, workflow summary, and metadata enrichment.
+
+## Exporters
+
+Built-in exporters:
+
+- `JsonExporter`
+- `SummaryExporter`
+- `MarkdownExporter`
+
+Exporters transform `DiscoveryResult` into deterministic read-only output.
 
 ## CLI Examples
 
 ```bash
 php bin/structora version
+php bin/structora help
 php bin/structora discover-file examples/fixtures/synthetic-auth-flow.html
 php bin/structora inspect-file examples/fixtures/synthetic-search-flow.html
 php bin/structora summary-file examples/fixtures/synthetic-auth-flow.html
@@ -45,7 +82,7 @@ php bin/structora export-json examples/fixtures/synthetic-auth-flow.html
 php bin/structora export-markdown examples/fixtures/synthetic-search-flow.html
 ```
 
-CLI commands read local files only and output JSON.
+CLI commands read local files only.
 
 ## PHP Example
 
@@ -58,22 +95,35 @@ $result = (new DiscoveryEngine())->discover(
     DiscoveryOptions::fromArray(['source' => 'inline-example'])
 );
 
-print_r($result->toArray());
+$payload = $result->toArray();
 ```
 
 ## Result Schema
 
-Every discovery result includes `schema_version`, `generated_at`, `status`, `source`, `title`, `summary`, `metadata`, `forms`, `links`, `headings`, `signals`, `signal_summary`, `workflow`, and `workflow_summary`.
+Every discovery result includes schema and release metadata:
 
-The current schema version is `0.1.0-alpha`.
+- `schema_version`
+- `generated_at`
+- `status`
+- `source`
+- `title`
+- `summary`
+- `metadata`
+- `rendering`
+- `forms`
+- `links`
+- `headings`
+- `signals`
+- `signal_summary`
+- `workflow`
+- `workflow_summary`
+- `extensions_applied`
+- `export_metadata`
+- `enrichment_metadata`
 
 ## Safety Guarantees
 
-Structora Core is passive by design. It performs no network requests, no browser actions, no workflow execution, and no form submission. Rendering support is limited to read-only snapshot acquisition and metadata. Fixtures are synthetic and public-safe.
-
-## Rendering Model
-
-The rendering layer exposes `RendererInterface`, `RenderResult`, `RenderedDocument`, and `RenderedMetadata`. `StaticHtmlRenderer` is local-only and normalizes provided HTML. The optional Playwright adapter is a disabled scaffold for future rendered DOM acquisition and must remain non-interactive.
+Structora Core is passive by design. It performs no workflow execution, no form submission, no challenge solving, no bypass behavior, and no browser automation.
 
 ## Testing
 
@@ -86,30 +136,21 @@ php scripts/security-check.php
 php scripts/validate-cli-json.php
 ```
 
-On Windows with XAMPP PHP:
+## Contribution
 
-```powershell
-C:\xampp\php\php.exe vendor\bin\phpunit
-C:\xampp\php\php.exe scripts\validate-cli-json.php
-```
+Contributions should preserve the read-only safety model, use synthetic fixtures, include tests, and update docs for public API or schema changes.
 
-## Contribution Workflow
+## Roadmap
 
-Pull requests should include tests, documentation updates for public-facing changes, and a clean repository hygiene check. The PR template asks contributors to confirm that no secrets, runtime artifacts, automation behavior, browser actions, workflow execution, form submission, challenge solving, or bypass logic were added.
+- Harden alpha feedback from `v0.1.0-alpha`
+- Expand passive rendered DOM acquisition adapters
+- Add richer schema examples and integration recipes
+- Continue improving extension and exporter ergonomics
+- Prepare beta stability rules after public feedback
 
 ## Release Philosophy
 
-Structora Core follows semantic versioning expectations. While the project is in the `0.x` line, public contracts can evolve, but schema changes must be versioned, documented, and tested. The discovery result includes `schema_version` so downstream developer tooling can adapt intentionally.
-
-## Extension Philosophy
-
-Extensions should preserve the public schema, avoid side effects, and add developer-facing read-only intelligence. Automation behavior belongs outside Structora Core.
-
-## Exporters and Integrations
-
-Structora includes JSON, summary text, and Markdown exporters for deterministic result pipelines. Exporters transform `DiscoveryResult` objects into read-only output and do not mutate discovery data.
-
-Example extensions under `Structora\Extension\Examples` demonstrate metadata enrichment, signal summary enrichment, and workflow summary enrichment. Extensions augment discovery results; they do not execute workflows or interact with pages.
+Structora Core follows semantic versioning expectations. Alpha releases may evolve APIs and schema, but every public schema change must be versioned, documented, and tested.
 
 ## License
 

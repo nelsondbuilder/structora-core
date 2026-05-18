@@ -6,7 +6,7 @@ namespace Structora\Core;
 
 final class DiscoveryResult
 {
-    public const SCHEMA_VERSION = '0.1.0-alpha';
+    public const SCHEMA_VERSION = ReleaseMetadata::SCHEMA_VERSION;
 
     public function __construct(
         public readonly bool $status,
@@ -104,7 +104,10 @@ final class DiscoveryResult
     {
         return [
             'name' => 'structora-core',
+            'version' => ReleaseMetadata::VERSION,
+            'tag' => ReleaseMetadata::TAG,
             'schema_version' => self::SCHEMA_VERSION,
+            'release_stage' => ReleaseMetadata::RELEASE_STAGE,
             'mode' => 'read_only',
             'read_only' => true,
             'non_executable' => true,

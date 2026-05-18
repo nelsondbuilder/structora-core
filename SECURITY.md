@@ -2,7 +2,9 @@
 
 ## Supported Versions
 
-Security support begins with the first tagged public release.
+| Version | Supported |
+| --- | --- |
+| `v0.1.0-alpha` | Yes |
 
 ## Reporting a Vulnerability
 
@@ -28,3 +30,7 @@ Structora Core does not support or accept reports related to building checkout a
 ## Safety Principle
 
 Structora Core is read-only by design. It analyzes structure and produces discovery output. It does not submit forms, perform transactions, authenticate sessions, bypass access controls, or automate user actions.
+
+## Release Scope
+
+The `v0.1.0-alpha` release is an alpha-quality public infrastructure release. Security reports should focus on repository safety, unsafe file handling, accidental secret exposure, unsafe rendering assumptions, dependency vulnerabilities, and result serialization issues.
