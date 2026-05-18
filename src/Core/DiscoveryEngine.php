@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Structora\Core;
 
+use Structora\DOM\ParsedDocument;
+use Structora\DOM\StructureParser;
+use Structora\DOM\StructureParserInterface;
 use Structora\Extension\ExtensionInterface;
 use Structora\Extension\ResultEnricherInterface;
 use Structora\Interpretation\InterpretationProviderInterface;
@@ -13,6 +16,7 @@ use Structora\Rendering\RendererInterface;
 final class DiscoveryEngine
 {
     private InterpretationProviderInterface $interpretationProvider;
+    private StructureParserInterface $structureParser;
     private ?RendererInterface $renderer = null;
 
     /** @var ExtensionInterface[] */
@@ -21,9 +25,12 @@ final class DiscoveryEngine
     /** @var ResultEnricherInterface[] */
     private array $enrichers = [];
 
-    public function __construct(?InterpretationProviderInterface $interpretationProvider = null)
-    {
+    public function __construct(
+        ?InterpretationProviderInterface $interpretationProvider = null,
+        ?StructureParserInterface $structureParser = null,
+    ) {
         $this->interpretationProvider = $interpretationProvider ?? new NullInterpretationProvider();
+        $this->structureParser = $structureParser ?? new StructureParser();
     }
 
     public function withRenderer(RendererInterface $renderer): self
@@ -54,7 +61,12 @@ final class DiscoveryEngine
     {
         $options ??= new DiscoveryOptions();
 
-        $result = DiscoveryResult::empty($options->source);
+        $parsedDocument = $this->structureParser->parse($document, [
+            'source' => $options->source,
+            'metadata' => $options->metadata,
+        ]);
+
+        $result = $this->buildResult($parsedDocument, $options);
 
         foreach ($this->extensions as $extension) {
             $extension->boot($this);
@@ -71,6 +83,10 @@ final class DiscoveryEngine
                 status: $result->status,
                 source: $result->source,
                 summary: $result->summary,
+                title: $result->title,
+                forms: $result->forms,
+                links: $result->links,
+                headings: $result->headings,
                 signals: $result->signals,
                 workflow: $result->workflow,
                 interpretation: $interpretation,
@@ -79,5 +95,41 @@ final class DiscoveryEngine
         }
 
         return $result;
+    }
+
+    private function buildResult(ParsedDocument $parsedDocument, DiscoveryOptions $options): DiscoveryResult
+    {
+        $parsed = $parsedDocument->toArray();
+        $summary = array_merge([
+            'engine' => 'structora-core',
+            'mode' => 'read_only',
+            'message' => 'Discovery completed from provided HTML input.',
+        ], $parsedDocument->summary);
+
+        return new DiscoveryResult(
+            status: true,
+            source: $options->source !== '' ? $options->source : $parsedDocument->source,
+            summary: $summary,
+            title: $parsedDocument->title,
+            forms: $parsed['forms'],
+            links: $parsed['links'],
+            headings: $parsed['headings'],
+            metadata: array_merge($parsedDocument->metadata, [
+                'read_only' => true,
+                'execution_required' => false,
+                'engine' => self::class,
+                'parser' => $parsedDocument->metadata['parser'] ?? $this->structureParser::class,
+                'input_metadata' => $options->metadata,
+                'renderer_configured' => $this->renderer instanceof RendererInterface,
+                'interpretation_enabled' => $options->interpretationEnabled,
+                'extraction_counts' => [
+                    'forms' => $summary['form_count'] ?? 0,
+                    'fields' => $summary['field_count'] ?? 0,
+                    'buttons' => $summary['button_count'] ?? 0,
+                    'links' => $summary['link_count'] ?? 0,
+                    'headings' => $summary['heading_count'] ?? 0,
+                ],
+            ]),
+        );
     }
 }

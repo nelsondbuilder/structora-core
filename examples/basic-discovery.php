@@ -15,6 +15,9 @@ $result = $engine->discover(
     $html ?: '',
     DiscoveryOptions::fromArray([
         'source' => 'synthetic-basic-page',
+        'metadata' => [
+            'example' => 'basic-discovery',
+        ],
     ])
 );
 

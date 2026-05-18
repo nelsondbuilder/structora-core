@@ -15,8 +15,10 @@ if ($command === 'help' || in_array($command, ['-h', '--help'], true)) {
     echo "Read-only structure intelligence for the web.\n\n";
     echo "Usage:\n";
     echo "  structora discover <source-label>\n";
+    echo "  structora discover-file <path>\n";
+    echo "  structora inspect-file <path>\n";
     echo "  structora help\n\n";
-    echo "This scaffold does not fetch remote URLs or perform browser actions.\n";
+    echo "This tool reads provided strings or local files only. It does not fetch remote URLs or perform browser actions.\n";
     exit(0);
 }
 
@@ -32,6 +34,60 @@ if ($command === 'discover') {
     );
 
     echo json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+    exit(0);
+}
+
+if ($command === 'discover-file' || $command === 'inspect-file') {
+    $path = $argv[2] ?? '';
+
+    if ($path === '') {
+        fwrite(STDERR, "Missing local file path.\n");
+        exit(1);
+    }
+
+    if (preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $path) === 1) {
+        fwrite(STDERR, "Remote URLs are not supported. Provide a local file path.\n");
+        exit(1);
+    }
+
+    $resolvedPath = realpath($path);
+    if ($resolvedPath === false || !is_file($resolvedPath)) {
+        fwrite(STDERR, "File not found: {$path}\n");
+        exit(1);
+    }
+
+    $html = file_get_contents($resolvedPath);
+    if ($html === false) {
+        fwrite(STDERR, "Unable to read file: {$path}\n");
+        exit(1);
+    }
+
+    $engine = new DiscoveryEngine();
+    $result = $engine->discover(
+        $html,
+        DiscoveryOptions::fromArray([
+            'source' => $resolvedPath,
+            'metadata' => [
+                'input_type' => 'local_file',
+                'command' => $command,
+            ],
+        ])
+    );
+
+    $payload = $result->toArray();
+    if ($command === 'inspect-file') {
+        $payload = [
+            'source' => $payload['source'],
+            'summary' => $payload['summary'],
+            'title' => $payload['title'],
+            'forms' => $payload['forms'],
+            'links' => $payload['links'],
+            'headings' => $payload['headings'],
+            'metadata' => $payload['metadata'],
+        ];
+    }
+
+    echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
     exit(0);
 }
 
