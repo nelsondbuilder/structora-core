@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Structora\Core\DiscoveryEngine;
+use Structora\Core\DiscoveryOptions;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$command = $argv[1] ?? 'help';
+
+if ($command === 'help' || in_array($command, ['-h', '--help'], true)) {
+    echo "Structora Core\n";
+    echo "Read-only structure intelligence for the web.\n\n";
+    echo "Usage:\n";
+    echo "  structora discover <source-label>\n";
+    echo "  structora help\n\n";
+    echo "This scaffold does not fetch remote URLs or perform browser actions.\n";
+    exit(0);
+}
+
+if ($command === 'discover') {
+    $source = $argv[2] ?? 'cli-input';
+
+    $engine = new DiscoveryEngine();
+    $result = $engine->discover(
+        '<html><body><main>Structora scaffold input</main></body></html>',
+        DiscoveryOptions::fromArray([
+            'source' => $source,
+        ])
+    );
+
+    echo json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+    exit(0);
+}
+
+fwrite(STDERR, "Unknown command: {$command}\n");
+exit(1);

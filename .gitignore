@@ -1,0 +1,66 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.crt
+*.credentials.json
+secrets/
+credentials/
+
+# Runtime output
+/storage/
+/runtime/
+/logs/
+/cache/
+/tmp/
+/temp/
+
+# Cookies and sessions
+DOWNTOWN/
+cookies/
+cookie-jars/
+*.cookie
+*.cookies
+*.session
+
+# Logs and debug output
+*.log
+curl_errors.log
+debug.log
+
+# Generated data
+generated/
+outputs/
+exports/
+collections/
+discovery/collections/
+templates-generated/
+
+# Browser/test artifacts
+screenshots/
+videos/
+traces/
+playwright-report/
+test-results/
+*.har
+
+# Databases
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

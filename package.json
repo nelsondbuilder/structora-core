@@ -1,0 +1,18 @@
+{
+  "name": "@structora/core",
+  "version": "0.1.0",
+  "description": "Read-only structure intelligence and workflow discovery engine.",
+  "license": "MIT",
+  "private": false,
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"No JavaScript tests configured yet.\""
+  },
+  "keywords": [
+    "structure-analysis",
+    "workflow-discovery",
+    "dom-analysis",
+    "developer-tools",
+    "read-only"
+  ]
+}
