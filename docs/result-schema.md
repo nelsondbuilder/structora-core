@@ -60,7 +60,20 @@ Structora Core discovery results use a versioned public schema. The current sche
     "read_only": true,
     "non_executable": true
   },
-  "interpretation": []
+  "interpretation": [],
+  "extensions_applied": [],
+  "export_metadata": {
+    "exportable": true,
+    "formats": ["json", "summary", "markdown"],
+    "read_only": true,
+    "non_executable": true
+  },
+  "enrichment_metadata": {
+    "applied_count": 0,
+    "read_only": true,
+    "non_destructive": true,
+    "extensions": []
+  }
 }
 ```
 
@@ -94,6 +107,9 @@ Structora Core discovery results use a versioned public schema. The current sche
 | `workflow` | array | Observed high-level workflow states. |
 | `workflow_summary` | object | Workflow counts, types, and confidence values. |
 | `interpretation` | array | Optional interpretation provider output. |
+| `extensions_applied` | array | Ordered extension class names applied to the result. |
+| `export_metadata` | object | Supported export formats and export safety metadata. |
+| `enrichment_metadata` | object | Extension pipeline metadata. |
 
 ## Malformed HTML
 

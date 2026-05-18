@@ -41,6 +41,8 @@ php bin/structora inspect-file examples/fixtures/synthetic-search-flow.html
 php bin/structora summary-file examples/fixtures/synthetic-auth-flow.html
 php bin/structora render-file examples/fixtures/rendered-search-page.html
 php bin/structora inspect-render examples/fixtures/rendered-search-page.html
+php bin/structora export-json examples/fixtures/synthetic-auth-flow.html
+php bin/structora export-markdown examples/fixtures/synthetic-search-flow.html
 ```
 
 CLI commands read local files only and output JSON.
@@ -102,6 +104,12 @@ Structora Core follows semantic versioning expectations. While the project is in
 ## Extension Philosophy
 
 Extensions should preserve the public schema, avoid side effects, and add developer-facing read-only intelligence. Automation behavior belongs outside Structora Core.
+
+## Exporters and Integrations
+
+Structora includes JSON, summary text, and Markdown exporters for deterministic result pipelines. Exporters transform `DiscoveryResult` objects into read-only output and do not mutate discovery data.
+
+Example extensions under `Structora\Extension\Examples` demonstrate metadata enrichment, signal summary enrichment, and workflow summary enrichment. Extensions augment discovery results; they do not execute workflows or interact with pages.
 
 ## License
 

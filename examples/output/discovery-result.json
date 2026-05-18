@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1.0-alpha",
+  "status": true,
+  "source": "synthetic-auth-flow",
+  "title": "Synthetic Authentication Flow",
+  "extensions_applied": [],
+  "export_metadata": {
+    "exportable": true,
+    "formats": ["json", "summary", "markdown"],
+    "read_only": true,
+    "non_executable": true
+  }
+}

@@ -23,6 +23,9 @@ final class DiscoveryResult
         public readonly array $workflow = [],
         public readonly array $workflowSummary = [],
         public readonly array $interpretation = [],
+        public readonly array $extensionsApplied = [],
+        public readonly array $exportMetadata = [],
+        public readonly array $enrichmentMetadata = [],
         public readonly string $schemaVersion = self::SCHEMA_VERSION,
         public readonly string $generatedAt = '',
     ) {
@@ -66,7 +69,35 @@ final class DiscoveryResult
             'workflow' => array_values($this->workflow),
             'workflow_summary' => $this->normalizeWorkflowSummary($this->workflowSummary),
             'interpretation' => $this->interpretation,
+            'extensions_applied' => array_values($this->extensionsApplied),
+            'export_metadata' => $this->normalizeExportMetadata($this->exportMetadata),
+            'enrichment_metadata' => $this->normalizeEnrichmentMetadata($this->enrichmentMetadata),
         ];
+    }
+
+    public function with(array $changes): self
+    {
+        return new self(
+            status: $changes['status'] ?? $this->status,
+            source: $changes['source'] ?? $this->source,
+            summary: $changes['summary'] ?? $this->summary,
+            title: $changes['title'] ?? $this->title,
+            metadata: $changes['metadata'] ?? $this->metadata,
+            rendering: $changes['rendering'] ?? $this->rendering,
+            forms: $changes['forms'] ?? $this->forms,
+            links: $changes['links'] ?? $this->links,
+            headings: $changes['headings'] ?? $this->headings,
+            signals: $changes['signals'] ?? $this->signals,
+            signalSummary: $changes['signalSummary'] ?? $this->signalSummary,
+            workflow: $changes['workflow'] ?? $this->workflow,
+            workflowSummary: $changes['workflowSummary'] ?? $this->workflowSummary,
+            interpretation: $changes['interpretation'] ?? $this->interpretation,
+            extensionsApplied: $changes['extensionsApplied'] ?? $this->extensionsApplied,
+            exportMetadata: $changes['exportMetadata'] ?? $this->exportMetadata,
+            enrichmentMetadata: $changes['enrichmentMetadata'] ?? $this->enrichmentMetadata,
+            schemaVersion: $changes['schemaVersion'] ?? $this->schemaVersion,
+            generatedAt: $changes['generatedAt'] ?? $this->generatedAt,
+        );
     }
 
     public static function engineMetadata(): array
@@ -165,5 +196,25 @@ final class DiscoveryResult
             'read_only' => true,
             'non_executable' => true,
         ], $summary);
+    }
+
+    private function normalizeExportMetadata(array $metadata): array
+    {
+        return array_merge([
+            'exportable' => true,
+            'formats' => ['json', 'summary', 'markdown'],
+            'read_only' => true,
+            'non_executable' => true,
+        ], $metadata);
+    }
+
+    private function normalizeEnrichmentMetadata(array $metadata): array
+    {
+        return array_merge([
+            'applied_count' => count($this->extensionsApplied),
+            'read_only' => true,
+            'non_destructive' => true,
+            'extensions' => [],
+        ], $metadata);
     }
 }

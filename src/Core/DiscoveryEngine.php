@@ -11,6 +11,7 @@ use Structora\Detection\SignalCollection;
 use Structora\DOM\StructureParser;
 use Structora\DOM\StructureParserInterface;
 use Structora\Extension\ExtensionInterface;
+use Structora\Extension\ExtensionPipeline;
 use Structora\Extension\ResultEnricherInterface;
 use Structora\Interpretation\InterpretationProviderInterface;
 use Structora\Interpretation\NullInterpretationProvider;
@@ -88,9 +89,7 @@ final class DiscoveryEngine
             $extension->boot($this);
         }
 
-        foreach ($this->enrichers as $enricher) {
-            $result = $enricher->enrich($result, $options);
-        }
+        $result = (new ExtensionPipeline($this->enrichers))->run($result, $options);
 
         if ($options->interpretationEnabled) {
             $interpretation = $this->interpretationProvider->interpret($result->toArray());
@@ -110,6 +109,9 @@ final class DiscoveryEngine
                 workflow: $result->workflow,
                 workflowSummary: $result->workflowSummary,
                 interpretation: $interpretation,
+                extensionsApplied: $result->extensionsApplied,
+                exportMetadata: $result->exportMetadata,
+                enrichmentMetadata: $result->enrichmentMetadata,
                 schemaVersion: $result->schemaVersion,
                 generatedAt: $result->generatedAt,
             );
@@ -194,6 +196,18 @@ final class DiscoveryEngine
             signalSummary: $signalSummary,
             workflow: $workflowCollection->toArray(),
             workflowSummary: $workflowSummary,
+            exportMetadata: [
+                'exportable' => true,
+                'formats' => ['json', 'summary', 'markdown'],
+                'read_only' => true,
+                'non_executable' => true,
+            ],
+            enrichmentMetadata: [
+                'applied_count' => 0,
+                'read_only' => true,
+                'non_destructive' => true,
+                'extensions' => [],
+            ],
             schemaVersion: DiscoveryResult::SCHEMA_VERSION,
             generatedAt: gmdate(DATE_ATOM),
         );

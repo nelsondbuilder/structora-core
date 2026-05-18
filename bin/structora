@@ -6,6 +6,9 @@ declare(strict_types=1);
 use Structora\Core\DiscoveryEngine;
 use Structora\Core\DiscoveryOptions;
 use Structora\Core\DiscoveryResult;
+use Structora\Export\JsonExporter;
+use Structora\Export\MarkdownExporter;
+use Structora\Export\SummaryExporter;
 use Structora\Rendering\StaticHtmlRenderer;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -21,6 +24,9 @@ function printHelp(): void
     echo "  structora summary-file <path>\n";
     echo "  structora render-file <path>\n";
     echo "  structora inspect-render <path>\n";
+    echo "  structora export-json <path>\n";
+    echo "  structora export-summary <path>\n";
+    echo "  structora export-markdown <path>\n";
     echo "  structora version\n";
     echo "  structora help\n\n";
     echo "Safety:\n";
@@ -119,6 +125,9 @@ function inspectPayload(array $payload): array
         'signal_summary' => $payload['signal_summary'],
         'workflow' => $payload['workflow'],
         'workflow_summary' => $payload['workflow_summary'],
+        'extensions_applied' => $payload['extensions_applied'],
+        'export_metadata' => $payload['export_metadata'],
+        'enrichment_metadata' => $payload['enrichment_metadata'],
     ];
 }
 
@@ -225,6 +234,18 @@ if (in_array($command, ['discover-file', 'inspect-file', 'summary-file', 'inspec
     }
 
     writeJson($payload);
+    exit(0);
+}
+
+if (in_array($command, ['export-json', 'export-summary', 'export-markdown'], true)) {
+    $result = discoverLocalFile($argv[2] ?? '', $command);
+    $exporter = match ($command) {
+        'export-json' => new JsonExporter(),
+        'export-summary' => new SummaryExporter(),
+        'export-markdown' => new MarkdownExporter(),
+    };
+
+    echo $exporter->export($result)->content;
     exit(0);
 }
 

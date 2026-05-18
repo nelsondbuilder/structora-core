@@ -55,5 +55,18 @@
     "read_only": true,
     "non_executable": true
   },
-  "interpretation": []
+  "interpretation": [],
+  "extensions_applied": [],
+  "export_metadata": {
+    "exportable": true,
+    "formats": ["json", "summary", "markdown"],
+    "read_only": true,
+    "non_executable": true
+  },
+  "enrichment_metadata": {
+    "applied_count": 0,
+    "read_only": true,
+    "non_destructive": true,
+    "extensions": []
+  }
 }

@@ -1,0 +1,7 @@
+Structora Discovery Summary
+Source: synthetic-auth-flow
+Title: Synthetic Authentication Flow
+Forms: 1
+Signals: 1 [auth_like_form]
+Workflow: 2 [auth_flow, form_flow]
+Read-only: true

@@ -9,6 +9,7 @@ $commands = [
     ['inspect-file', 'examples/fixtures/synthetic-search-flow.html'],
     ['render-file', 'examples/fixtures/rendered-search-page.html'],
     ['inspect-render', 'examples/fixtures/rendered-search-page.html'],
+    ['export-json', 'examples/fixtures/synthetic-auth-flow.html'],
 ];
 
 foreach ($commands as $parts) {

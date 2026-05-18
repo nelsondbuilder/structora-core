@@ -31,6 +31,9 @@ final class DiscoveryResultSchemaTest extends TestCase
             'workflow',
             'workflow_summary',
             'interpretation',
+            'extensions_applied',
+            'export_metadata',
+            'enrichment_metadata',
         ], array_keys($payload));
     }
 
