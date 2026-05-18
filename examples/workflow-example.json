@@ -1,0 +1,25 @@
+{
+  "workflow": [
+    {
+      "type": "auth_flow",
+      "confidence": 0.95,
+      "evidence": {
+        "source_signal": "auth_like_form"
+      },
+      "metadata": {
+        "read_only": true,
+        "observational_only": true,
+        "non_executable": true
+      }
+    }
+  ],
+  "workflow_summary": {
+    "workflow_count": 1,
+    "workflow_types": ["auth_flow"],
+    "confidence_summary": {
+      "auth_flow": 0.95
+    },
+    "read_only": true,
+    "non_executable": true
+  }
+}

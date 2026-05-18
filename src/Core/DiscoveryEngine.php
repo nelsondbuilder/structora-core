@@ -96,6 +96,7 @@ final class DiscoveryEngine
                 source: $result->source,
                 summary: $result->summary,
                 title: $result->title,
+                metadata: $result->metadata,
                 forms: $result->forms,
                 links: $result->links,
                 headings: $result->headings,
@@ -104,7 +105,8 @@ final class DiscoveryEngine
                 workflow: $result->workflow,
                 workflowSummary: $result->workflowSummary,
                 interpretation: $interpretation,
-                metadata: $result->metadata,
+                schemaVersion: $result->schemaVersion,
+                generatedAt: $result->generatedAt,
             );
         }
 
@@ -140,17 +142,14 @@ final class DiscoveryEngine
             source: $options->source !== '' ? $options->source : $parsedDocument->source,
             summary: $summary,
             title: $parsedDocument->title,
-            forms: $parsed['forms'],
-            links: $parsed['links'],
-            headings: $parsed['headings'],
-            signals: $signalCollection->toArray(),
-            signalSummary: $signalSummary,
-            workflow: $workflowCollection->toArray(),
-            workflowSummary: $workflowSummary,
             metadata: array_merge($parsedDocument->metadata, [
                 'read_only' => true,
                 'execution_required' => false,
-                'engine' => self::class,
+                'network_access' => false,
+                'filesystem_writes' => false,
+                'engine' => array_merge(DiscoveryResult::engineMetadata(), [
+                    'class' => self::class,
+                ]),
                 'parser' => $parsedDocument->metadata['parser'] ?? $this->structureParser::class,
                 'detector' => $this->signalDetector::class,
                 'workflow_mapper' => $this->workflowMapper::class,
@@ -165,6 +164,15 @@ final class DiscoveryEngine
                     'headings' => $summary['heading_count'] ?? 0,
                 ],
             ]),
+            forms: $parsed['forms'],
+            links: $parsed['links'],
+            headings: $parsed['headings'],
+            signals: $signalCollection->toArray(),
+            signalSummary: $signalSummary,
+            workflow: $workflowCollection->toArray(),
+            workflowSummary: $workflowSummary,
+            schemaVersion: DiscoveryResult::SCHEMA_VERSION,
+            generatedAt: gmdate(DATE_ATOM),
         );
     }
 }

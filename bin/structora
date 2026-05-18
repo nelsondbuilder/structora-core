@@ -5,65 +5,75 @@ declare(strict_types=1);
 
 use Structora\Core\DiscoveryEngine;
 use Structora\Core\DiscoveryOptions;
+use Structora\Core\DiscoveryResult;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$command = $argv[1] ?? 'help';
-
-if ($command === 'help' || in_array($command, ['-h', '--help'], true)) {
+function printHelp(): void
+{
     echo "Structora Core\n";
-    echo "Read-only structure intelligence for the web.\n\n";
+    echo "Read-only structure intelligence and workflow discovery for local HTML input.\n\n";
     echo "Usage:\n";
     echo "  structora discover <source-label>\n";
     echo "  structora discover-file <path>\n";
     echo "  structora inspect-file <path>\n";
+    echo "  structora summary-file <path>\n";
+    echo "  structora version\n";
     echo "  structora help\n\n";
-    echo "This tool reads provided strings or local files only. It does not fetch remote URLs or perform browser actions.\n";
-    exit(0);
+    echo "Safety:\n";
+    echo "  Local files only. No remote fetching, browser actions, form submission, or workflow execution.\n";
 }
 
-if ($command === 'discover') {
-    $source = $argv[2] ?? 'cli-input';
-
-    $engine = new DiscoveryEngine();
-    $result = $engine->discover(
-        '<html><body><main>Structora scaffold input</main></body></html>',
-        DiscoveryOptions::fromArray([
-            'source' => $source,
-        ])
-    );
-
-    echo json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
-    exit(0);
+function writeJson(array $payload): void
+{
+    echo json_encode(
+        $payload,
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+    ) . PHP_EOL;
 }
 
-if ($command === 'discover-file' || $command === 'inspect-file') {
-    $path = $argv[2] ?? '';
+function fail(string $message, int $exitCode = 1): never
+{
+    fwrite(STDERR, "Structora error: {$message}\n");
+    exit($exitCode);
+}
 
+function resolveLocalHtmlFile(string $path): string
+{
     if ($path === '') {
-        fwrite(STDERR, "Missing local file path.\n");
-        exit(1);
+        fail('Missing local file path.');
     }
 
     if (preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $path) === 1) {
-        fwrite(STDERR, "Remote URLs are not supported. Provide a local file path.\n");
-        exit(1);
+        fail('Remote URLs are not supported. Provide a local HTML file path.');
     }
 
     $resolvedPath = realpath($path);
-    if ($resolvedPath === false || !is_file($resolvedPath)) {
-        fwrite(STDERR, "File not found: {$path}\n");
-        exit(1);
+    if ($resolvedPath === false) {
+        fail("File not found: {$path}");
     }
 
+    if (!is_file($resolvedPath)) {
+        fail("Path is not a file: {$path}");
+    }
+
+    if (!is_readable($resolvedPath)) {
+        fail("File is not readable: {$path}");
+    }
+
+    return $resolvedPath;
+}
+
+function discoverLocalFile(string $path, string $command): DiscoveryResult
+{
+    $resolvedPath = resolveLocalHtmlFile($path);
     $html = file_get_contents($resolvedPath);
+
     if ($html === false) {
-        fwrite(STDERR, "Unable to read file: {$path}\n");
-        exit(1);
+        fail("Unable to read file: {$path}");
     }
 
-    $engine = new DiscoveryEngine();
-    $result = $engine->discover(
+    return (new DiscoveryEngine())->discover(
         $html,
         DiscoveryOptions::fromArray([
             'source' => $resolvedPath,
@@ -73,27 +83,97 @@ if ($command === 'discover-file' || $command === 'inspect-file') {
             ],
         ])
     );
+}
 
-    $payload = $result->toArray();
-    if ($command === 'inspect-file') {
-        $payload = [
-            'source' => $payload['source'],
-            'summary' => $payload['summary'],
-            'title' => $payload['title'],
-            'forms' => $payload['forms'],
-            'links' => $payload['links'],
-            'headings' => $payload['headings'],
-            'signals' => $payload['signals'],
-            'signal_summary' => $payload['signal_summary'],
-            'workflow' => $payload['workflow'],
-            'workflow_summary' => $payload['workflow_summary'],
-            'metadata' => $payload['metadata'],
-        ];
-    }
+function inspectPayload(array $payload): array
+{
+    return [
+        'schema_version' => $payload['schema_version'],
+        'generated_at' => $payload['generated_at'],
+        'status' => $payload['status'],
+        'source' => $payload['source'],
+        'title' => $payload['title'],
+        'summary' => $payload['summary'],
+        'metadata' => $payload['metadata'],
+        'forms' => $payload['forms'],
+        'links' => $payload['links'],
+        'headings' => $payload['headings'],
+        'signals' => $payload['signals'],
+        'signal_summary' => $payload['signal_summary'],
+        'workflow' => $payload['workflow'],
+        'workflow_summary' => $payload['workflow_summary'],
+    ];
+}
 
-    echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+function summaryPayload(array $payload): array
+{
+    return [
+        'schema_version' => $payload['schema_version'],
+        'generated_at' => $payload['generated_at'],
+        'source' => $payload['source'],
+        'title' => $payload['title'],
+        'summary' => [
+            'form_count' => $payload['summary']['form_count'],
+            'field_count' => $payload['summary']['field_count'],
+            'button_count' => $payload['summary']['button_count'],
+            'link_count' => $payload['summary']['link_count'],
+            'heading_count' => $payload['summary']['heading_count'],
+            'signal_count' => $payload['summary']['signal_count'],
+            'signal_types' => $payload['summary']['signal_types'],
+            'workflow_count' => $payload['summary']['workflow_count'],
+            'workflow_types' => $payload['summary']['workflow_types'],
+        ],
+        'signal_confidence' => $payload['signal_summary']['confidence'],
+        'workflow_confidence' => $payload['workflow_summary']['confidence_summary'],
+        'read_only' => $payload['metadata']['read_only'],
+        'non_executable' => $payload['workflow_summary']['non_executable'],
+    ];
+}
+
+$command = $argv[1] ?? 'help';
+
+if ($command === 'help' || in_array($command, ['-h', '--help'], true)) {
+    printHelp();
     exit(0);
 }
 
-fwrite(STDERR, "Unknown command: {$command}\n");
-exit(1);
+if ($command === 'version') {
+    writeJson([
+        'name' => 'structora/core',
+        'version' => DiscoveryResult::SCHEMA_VERSION,
+        'schema_version' => DiscoveryResult::SCHEMA_VERSION,
+        'read_only' => true,
+    ]);
+    exit(0);
+}
+
+if ($command === 'discover') {
+    $source = $argv[2] ?? 'cli-input';
+    $result = (new DiscoveryEngine())->discover(
+        '<html><body><main>Structora scaffold input</main></body></html>',
+        DiscoveryOptions::fromArray([
+            'source' => $source,
+        ])
+    );
+
+    writeJson($result->toArray());
+    exit(0);
+}
+
+if (in_array($command, ['discover-file', 'inspect-file', 'summary-file'], true)) {
+    $result = discoverLocalFile($argv[2] ?? '', $command);
+    $payload = $result->toArray();
+
+    if ($command === 'inspect-file') {
+        $payload = inspectPayload($payload);
+    }
+
+    if ($command === 'summary-file') {
+        $payload = summaryPayload($payload);
+    }
+
+    writeJson($payload);
+    exit(0);
+}
+
+fail("Unknown command: {$command}");

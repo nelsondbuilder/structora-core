@@ -6,11 +6,14 @@ namespace Structora\Core;
 
 final class DiscoveryResult
 {
+    public const SCHEMA_VERSION = '0.1.0-alpha';
+
     public function __construct(
         public readonly bool $status,
         public readonly string $source,
         public readonly array $summary,
         public readonly string $title = '',
+        public readonly array $metadata = [],
         public readonly array $forms = [],
         public readonly array $links = [],
         public readonly array $headings = [],
@@ -19,7 +22,8 @@ final class DiscoveryResult
         public readonly array $workflow = [],
         public readonly array $workflowSummary = [],
         public readonly array $interpretation = [],
-        public readonly array $metadata = [],
+        public readonly string $schemaVersion = self::SCHEMA_VERSION,
+        public readonly string $generatedAt = '',
     ) {
     }
 
@@ -33,9 +37,11 @@ final class DiscoveryResult
                 'mode' => 'read_only',
                 'message' => 'Discovery engine scaffold initialized.',
             ],
+            title: '',
             metadata: [
                 'read_only' => true,
                 'execution_required' => false,
+                'engine' => self::engineMetadata(),
             ],
         );
     }
@@ -43,19 +49,97 @@ final class DiscoveryResult
     public function toArray(): array
     {
         return [
+            'schema_version' => $this->schemaVersion,
+            'generated_at' => $this->generatedAt !== '' ? $this->generatedAt : gmdate(DATE_ATOM),
             'status' => $this->status,
             'source' => $this->source,
-            'summary' => $this->summary,
             'title' => $this->title,
-            'forms' => $this->forms,
-            'links' => $this->links,
-            'headings' => $this->headings,
-            'signals' => $this->signals,
-            'signal_summary' => $this->signalSummary,
-            'workflow' => $this->workflow,
-            'workflow_summary' => $this->workflowSummary,
+            'summary' => $this->normalizeSummary($this->summary),
+            'metadata' => $this->normalizeMetadata($this->metadata),
+            'forms' => array_values($this->forms),
+            'links' => array_values($this->links),
+            'headings' => array_values($this->headings),
+            'signals' => array_values($this->signals),
+            'signal_summary' => $this->normalizeSignalSummary($this->signalSummary),
+            'workflow' => array_values($this->workflow),
+            'workflow_summary' => $this->normalizeWorkflowSummary($this->workflowSummary),
             'interpretation' => $this->interpretation,
-            'metadata' => $this->metadata,
         ];
+    }
+
+    public static function engineMetadata(): array
+    {
+        return [
+            'name' => 'structora-core',
+            'schema_version' => self::SCHEMA_VERSION,
+            'mode' => 'read_only',
+            'read_only' => true,
+            'non_executable' => true,
+        ];
+    }
+
+    private function normalizeSummary(array $summary): array
+    {
+        return array_merge([
+            'engine' => 'structora-core',
+            'mode' => 'read_only',
+            'message' => '',
+            'title_present' => false,
+            'form_count' => 0,
+            'field_count' => 0,
+            'button_count' => 0,
+            'link_count' => 0,
+            'heading_count' => 0,
+            'signal_count' => 0,
+            'signal_types' => [],
+            'workflow_count' => 0,
+            'workflow_types' => [],
+        ], $summary);
+    }
+
+    private function normalizeMetadata(array $metadata): array
+    {
+        return array_merge([
+            'read_only' => true,
+            'execution_required' => false,
+            'network_access' => false,
+            'filesystem_writes' => false,
+            'engine' => self::engineMetadata(),
+            'parser' => '',
+            'detector' => '',
+            'workflow_mapper' => '',
+            'input_metadata' => [],
+            'renderer_configured' => false,
+            'interpretation_enabled' => false,
+            'extraction_counts' => [
+                'forms' => 0,
+                'fields' => 0,
+                'buttons' => 0,
+                'links' => 0,
+                'headings' => 0,
+            ],
+        ], $metadata);
+    }
+
+    private function normalizeSignalSummary(array $summary): array
+    {
+        return array_merge([
+            'count' => 0,
+            'types' => [],
+            'confidence' => [],
+            'read_only' => true,
+            'non_executable' => true,
+        ], $summary);
+    }
+
+    private function normalizeWorkflowSummary(array $summary): array
+    {
+        return array_merge([
+            'workflow_count' => 0,
+            'workflow_types' => [],
+            'confidence_summary' => [],
+            'read_only' => true,
+            'non_executable' => true,
+        ], $summary);
     }
 }

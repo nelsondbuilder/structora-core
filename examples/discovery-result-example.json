@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1.0-alpha",
+  "generated_at": "2026-05-19T00:00:00+00:00",
+  "status": true,
+  "source": "examples/fixtures/synthetic-auth-flow.html",
+  "title": "Synthetic Authentication Flow",
+  "summary": {
+    "engine": "structora-core",
+    "mode": "read_only",
+    "message": "Discovery completed from provided HTML input.",
+    "form_count": 1,
+    "signal_count": 1,
+    "workflow_count": 2,
+    "signal_types": ["auth_like_form"],
+    "workflow_types": ["auth_flow", "form_flow"]
+  },
+  "metadata": {
+    "read_only": true,
+    "execution_required": false,
+    "network_access": false,
+    "filesystem_writes": false
+  },
+  "forms": [],
+  "links": [],
+  "headings": [],
+  "signals": [],
+  "signal_summary": {
+    "count": 1,
+    "types": ["auth_like_form"],
+    "confidence": {
+      "auth_like_form": 0.95
+    },
+    "read_only": true,
+    "non_executable": true
+  },
+  "workflow": [],
+  "workflow_summary": {
+    "workflow_count": 2,
+    "workflow_types": ["auth_flow", "form_flow"],
+    "confidence_summary": {
+      "auth_flow": 0.95,
+      "form_flow": 0.65
+    },
+    "read_only": true,
+    "non_executable": true
+  },
+  "interpretation": []
+}

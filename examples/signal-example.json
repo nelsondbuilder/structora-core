@@ -1,0 +1,25 @@
+{
+  "signals": [
+    {
+      "type": "challenge_indicator",
+      "confidence": 0.88,
+      "evidence": {
+        "matched_terms": ["challenge", "verification"]
+      },
+      "metadata": {
+        "read_only": true,
+        "observational_only": true,
+        "non_executable": true
+      }
+    }
+  ],
+  "signal_summary": {
+    "count": 1,
+    "types": ["challenge_indicator"],
+    "confidence": {
+      "challenge_indicator": 0.88
+    },
+    "read_only": true,
+    "non_executable": true
+  }
+}

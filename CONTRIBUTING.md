@@ -32,7 +32,16 @@ The public project does not accept contributions for:
 ```bash
 composer install
 npm install
+C:\xampp\php\php.exe vendor\bin\phpunit
 ```
+
+## Developer Workflow
+
+- Keep fixtures synthetic and public-safe.
+- Run `composer dump-autoload -o` after adding public classes.
+- Run PHPUnit before opening a pull request.
+- Update docs when public schema, CLI output, or extension points change.
+- Do not commit generated caches or local runtime artifacts.
 
 ## Coding Standards
 
@@ -42,6 +51,12 @@ npm install
 - Small, explicit interfaces
 - No secrets
 - No generated runtime data
+
+## Versioning and Stability
+
+Structora Core follows semantic versioning expectations. During `0.x`, public APIs can evolve, but result schema changes must be explicit, documented, and covered by tests. Every discovery payload includes a `schema_version` so downstream tools can handle changes deliberately.
+
+Stable schema sections should prefer empty arrays and stable metadata keys over omitted values or `null`.
 
 ## Pull Request Checklist
 

@@ -34,7 +34,9 @@ final class StructureDiscoveryResultTest extends TestCase
         self::assertSame([['href' => '/synthetic/docs']], $payload['links']);
         self::assertSame([['level' => 1, 'text' => 'Synthetic']], $payload['headings']);
         self::assertSame([['type' => 'informational_page']], $payload['workflow']);
-        self::assertSame(['workflow_count' => 1], $payload['workflow_summary']);
+        self::assertSame(1, $payload['workflow_summary']['workflow_count']);
+        self::assertSame([], $payload['workflow_summary']['workflow_types']);
+        self::assertTrue($payload['workflow_summary']['read_only']);
         self::assertSame('SyntheticParser', $payload['metadata']['parser']);
     }
 
