@@ -15,12 +15,16 @@ use Structora\Extension\ResultEnricherInterface;
 use Structora\Interpretation\InterpretationProviderInterface;
 use Structora\Interpretation\NullInterpretationProvider;
 use Structora\Rendering\RendererInterface;
+use Structora\Workflow\WorkflowCollection;
+use Structora\Workflow\WorkflowMapper;
+use Structora\Workflow\WorkflowMapperInterface;
 
 final class DiscoveryEngine
 {
     private InterpretationProviderInterface $interpretationProvider;
     private StructureParserInterface $structureParser;
     private DetectorInterface $signalDetector;
+    private WorkflowMapperInterface $workflowMapper;
     private ?RendererInterface $renderer = null;
 
     /** @var ExtensionInterface[] */
@@ -33,10 +37,12 @@ final class DiscoveryEngine
         ?InterpretationProviderInterface $interpretationProvider = null,
         ?StructureParserInterface $structureParser = null,
         ?DetectorInterface $signalDetector = null,
+        ?WorkflowMapperInterface $workflowMapper = null,
     ) {
         $this->interpretationProvider = $interpretationProvider ?? new NullInterpretationProvider();
         $this->structureParser = $structureParser ?? new StructureParser();
         $this->signalDetector = $signalDetector ?? new PassiveSignalDetector();
+        $this->workflowMapper = $workflowMapper ?? new WorkflowMapper();
     }
 
     public function withRenderer(RendererInterface $renderer): self
@@ -96,6 +102,7 @@ final class DiscoveryEngine
                 signals: $result->signals,
                 signalSummary: $result->signalSummary,
                 workflow: $result->workflow,
+                workflowSummary: $result->workflowSummary,
                 interpretation: $interpretation,
                 metadata: $result->metadata,
             );
@@ -119,6 +126,14 @@ final class DiscoveryEngine
         $signalSummary = $signalCollection->summary();
         $summary['signal_count'] = $signalSummary['count'];
         $summary['signal_types'] = $signalSummary['types'];
+        $workflowMap = $this->workflowMapper->map($parsedDocument, $signalCollection, [
+            'source' => $options->source,
+            'metadata' => $options->metadata,
+        ]);
+        $workflowCollection = WorkflowCollection::fromStates($workflowMap->states);
+        $workflowSummary = $workflowCollection->summary();
+        $summary['workflow_count'] = $workflowSummary['workflow_count'];
+        $summary['workflow_types'] = $workflowSummary['workflow_types'];
 
         return new DiscoveryResult(
             status: true,
@@ -130,12 +145,15 @@ final class DiscoveryEngine
             headings: $parsed['headings'],
             signals: $signalCollection->toArray(),
             signalSummary: $signalSummary,
+            workflow: $workflowCollection->toArray(),
+            workflowSummary: $workflowSummary,
             metadata: array_merge($parsedDocument->metadata, [
                 'read_only' => true,
                 'execution_required' => false,
                 'engine' => self::class,
                 'parser' => $parsedDocument->metadata['parser'] ?? $this->structureParser::class,
                 'detector' => $this->signalDetector::class,
+                'workflow_mapper' => $this->workflowMapper::class,
                 'input_metadata' => $options->metadata,
                 'renderer_configured' => $this->renderer instanceof RendererInterface,
                 'interpretation_enabled' => $options->interpretationEnabled,

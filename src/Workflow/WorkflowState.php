@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Structora\Workflow;
 
-final class WorkflowMap
+final class WorkflowState
 {
-    /**
-     * @param WorkflowState[] $states
-     */
     public function __construct(
-        public readonly array $states = [],
+        public readonly string $type,
+        public readonly float $confidence,
+        public readonly array $evidence = [],
         public readonly array $metadata = [],
     ) {
     }
@@ -18,10 +17,9 @@ final class WorkflowMap
     public function toArray(): array
     {
         return [
-            'states' => array_map(
-                static fn (WorkflowState $state): array => $state->toArray(),
-                $this->states,
-            ),
+            'type' => $this->type,
+            'confidence' => $this->confidence,
+            'evidence' => $this->evidence,
             'metadata' => $this->metadata,
         ];
     }

@@ -24,6 +24,8 @@ echo json_encode([
     'summary' => $payload['summary'],
     'signal_summary' => $payload['signal_summary'],
     'signals' => $payload['signals'],
+    'workflow_summary' => $payload['workflow_summary'],
+    'workflow' => $payload['workflow'],
     'forms' => $payload['forms'],
     'headings' => $payload['headings'],
     'links' => $payload['links'],

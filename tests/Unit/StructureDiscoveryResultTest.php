@@ -19,6 +19,8 @@ final class StructureDiscoveryResultTest extends TestCase
             forms: [['id' => 'search-form']],
             links: [['href' => '/synthetic/docs']],
             headings: [['level' => 1, 'text' => 'Synthetic']],
+            workflow: [['type' => 'informational_page']],
+            workflowSummary: ['workflow_count' => 1],
             metadata: [
                 'read_only' => true,
                 'parser' => 'SyntheticParser',
@@ -31,6 +33,8 @@ final class StructureDiscoveryResultTest extends TestCase
         self::assertSame([['id' => 'search-form']], $payload['forms']);
         self::assertSame([['href' => '/synthetic/docs']], $payload['links']);
         self::assertSame([['level' => 1, 'text' => 'Synthetic']], $payload['headings']);
+        self::assertSame([['type' => 'informational_page']], $payload['workflow']);
+        self::assertSame(['workflow_count' => 1], $payload['workflow_summary']);
         self::assertSame('SyntheticParser', $payload['metadata']['parser']);
     }
 

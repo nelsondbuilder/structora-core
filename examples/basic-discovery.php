@@ -17,6 +17,7 @@ $result = $engine->discover(
         'source' => 'synthetic-basic-page',
         'metadata' => [
             'example' => 'basic-discovery',
+            'phase' => 'workflow-mapping',
         ],
     ])
 );

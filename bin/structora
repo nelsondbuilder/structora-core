@@ -85,6 +85,8 @@ if ($command === 'discover-file' || $command === 'inspect-file') {
             'headings' => $payload['headings'],
             'signals' => $payload['signals'],
             'signal_summary' => $payload['signal_summary'],
+            'workflow' => $payload['workflow'],
+            'workflow_summary' => $payload['workflow_summary'],
             'metadata' => $payload['metadata'],
         ];
     }

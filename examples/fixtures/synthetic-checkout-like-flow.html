@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthetic Multi-Step Review Flow</title>
+</head>
+<body>
+  <main>
+    <h1>Review Workflow</h1>
+    <section>
+      <h2>Step 1: Contact Details</h2>
+      <form id="contact-review" method="post" action="/synthetic/review/contact">
+        <label for="contact-email">Email</label>
+        <input id="contact-email" name="contact_email" type="email">
+        <button type="submit">Save Contact</button>
+      </form>
+    </section>
+    <section>
+      <h2>Step 2: Review Details</h2>
+      <form id="detail-review" method="post" action="/synthetic/review/details">
+        <label for="reference">Reference</label>
+        <input id="reference" name="reference" type="text">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes"></textarea>
+        <button type="submit">Save Review</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

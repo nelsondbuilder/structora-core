@@ -30,6 +30,8 @@ final class DiscoveryEngineIntegrationTest extends TestCase
         self::assertSame('Developer Access', $result->headings[0]['text']);
         self::assertSame(1, $result->signalSummary['count']);
         self::assertContains('auth_like_form', $result->signalSummary['types']);
+        self::assertContains('auth_flow', $result->workflowSummary['workflow_types']);
+        self::assertContains('form_flow', $result->workflowSummary['workflow_types']);
     }
 
     public function testMalformedHtmlDoesNotFatalAndStillReturnsCounts(): void
@@ -47,6 +49,7 @@ final class DiscoveryEngineIntegrationTest extends TestCase
         self::assertSame(1, $result->summary['field_count']);
         self::assertSame(1, $result->summary['button_count']);
         self::assertArrayHasKey('signal_count', $result->summary);
+        self::assertArrayHasKey('workflow_count', $result->summary);
         self::assertTrue($result->metadata['read_only']);
     }
 

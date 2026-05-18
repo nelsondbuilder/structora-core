@@ -17,6 +17,7 @@ final class DiscoveryResult
         public readonly array $signals = [],
         public readonly array $signalSummary = [],
         public readonly array $workflow = [],
+        public readonly array $workflowSummary = [],
         public readonly array $interpretation = [],
         public readonly array $metadata = [],
     ) {
@@ -52,6 +53,7 @@ final class DiscoveryResult
             'signals' => $this->signals,
             'signal_summary' => $this->signalSummary,
             'workflow' => $this->workflow,
+            'workflow_summary' => $this->workflowSummary,
             'interpretation' => $this->interpretation,
             'metadata' => $this->metadata,
         ];
