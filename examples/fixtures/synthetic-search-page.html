@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthetic Search Workspace</title>
+</head>
+<body>
+  <header>
+    <h1>Knowledge Search</h1>
+    <nav>
+      <a href="/synthetic/docs">Docs</a>
+      <a href="/synthetic/support">Support</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Find a Record</h2>
+    <form id="search-form" method="get" action="/synthetic/search">
+      <label for="query">Query</label>
+      <input id="query" name="q" type="search" placeholder="Search records">
+      <label for="scope">Scope</label>
+      <select id="scope" name="scope">
+        <option value="all">All</option>
+        <option value="docs">Docs</option>
+      </select>
+      <button type="submit">Search</button>
+    </form>
+  </main>
+</body>
+</html>

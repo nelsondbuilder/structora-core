@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthetic Multi-Step Workflow</title>
+</head>
+<body>
+  <main>
+    <h1>Profile Setup</h1>
+    <section>
+      <h2>Step 1: Contact</h2>
+      <form id="contact-step" method="post" action="/synthetic/profile/contact">
+        <label for="full-name">Full name</label>
+        <input id="full-name" name="full_name" type="text" required>
+        <button type="submit">Save Contact</button>
+      </form>
+    </section>
+    <section>
+      <h2>Step 2: Preferences</h2>
+      <form id="preferences-step" method="post" action="/synthetic/profile/preferences">
+        <label for="timezone">Timezone</label>
+        <input id="timezone" name="timezone" type="text">
+        <label>
+          <input name="newsletter" type="checkbox" value="yes">
+          Receive updates
+        </label>
+        <button type="submit">Save Preferences</button>
+      </form>
+    </section>
+    <a href="/synthetic/profile/summary">View Summary</a>
+  </main>
+</body>
+</html>

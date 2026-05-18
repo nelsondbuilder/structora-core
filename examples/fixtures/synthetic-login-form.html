@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthetic Access Form</title>
+</head>
+<body>
+  <main>
+    <h1>Developer Access</h1>
+    <p>This synthetic fixture is for read-only parser tests.</p>
+    <form id="login-form" name="access" method="post" action="/synthetic/session">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="username" required>
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+      <button type="submit">Continue</button>
+    </form>
+    <a href="/synthetic/help" rel="help">Help</a>
+  </main>
+</body>
+</html>
