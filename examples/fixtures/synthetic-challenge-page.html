@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Synthetic Security Check</title>
+</head>
+<body>
+  <main>
+    <h1>Verification Challenge</h1>
+    <p>This synthetic page contains challenge indicators for passive analysis only.</p>
+    <form id="verification-form" method="post" action="/synthetic/verification">
+      <label for="verification-code">Verification code</label>
+      <input id="verification-code" name="verification_code" type="text" placeholder="Enter code">
+      <label for="captcha-response">Captcha response</label>
+      <input id="captcha-response" name="captcha_response" type="text">
+      <button type="submit">Verify</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -22,6 +22,8 @@ $payload = $result->toArray();
 
 echo json_encode([
     'summary' => $payload['summary'],
+    'signal_summary' => $payload['signal_summary'],
+    'signals' => $payload['signals'],
     'forms' => $payload['forms'],
     'headings' => $payload['headings'],
     'links' => $payload['links'],

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Structora\Core;
 
 use Structora\DOM\ParsedDocument;
+use Structora\Detection\DetectorInterface;
+use Structora\Detection\PassiveSignalDetector;
+use Structora\Detection\SignalCollection;
 use Structora\DOM\StructureParser;
 use Structora\DOM\StructureParserInterface;
 use Structora\Extension\ExtensionInterface;
@@ -17,6 +20,7 @@ final class DiscoveryEngine
 {
     private InterpretationProviderInterface $interpretationProvider;
     private StructureParserInterface $structureParser;
+    private DetectorInterface $signalDetector;
     private ?RendererInterface $renderer = null;
 
     /** @var ExtensionInterface[] */
@@ -28,9 +32,11 @@ final class DiscoveryEngine
     public function __construct(
         ?InterpretationProviderInterface $interpretationProvider = null,
         ?StructureParserInterface $structureParser = null,
+        ?DetectorInterface $signalDetector = null,
     ) {
         $this->interpretationProvider = $interpretationProvider ?? new NullInterpretationProvider();
         $this->structureParser = $structureParser ?? new StructureParser();
+        $this->signalDetector = $signalDetector ?? new PassiveSignalDetector();
     }
 
     public function withRenderer(RendererInterface $renderer): self
@@ -88,6 +94,7 @@ final class DiscoveryEngine
                 links: $result->links,
                 headings: $result->headings,
                 signals: $result->signals,
+                signalSummary: $result->signalSummary,
                 workflow: $result->workflow,
                 interpretation: $interpretation,
                 metadata: $result->metadata,
@@ -105,6 +112,13 @@ final class DiscoveryEngine
             'mode' => 'read_only',
             'message' => 'Discovery completed from provided HTML input.',
         ], $parsedDocument->summary);
+        $signalCollection = SignalCollection::fromSignals($this->signalDetector->detect($parsedDocument, [
+            'source' => $options->source,
+            'metadata' => $options->metadata,
+        ]));
+        $signalSummary = $signalCollection->summary();
+        $summary['signal_count'] = $signalSummary['count'];
+        $summary['signal_types'] = $signalSummary['types'];
 
         return new DiscoveryResult(
             status: true,
@@ -114,11 +128,14 @@ final class DiscoveryEngine
             forms: $parsed['forms'],
             links: $parsed['links'],
             headings: $parsed['headings'],
+            signals: $signalCollection->toArray(),
+            signalSummary: $signalSummary,
             metadata: array_merge($parsedDocument->metadata, [
                 'read_only' => true,
                 'execution_required' => false,
                 'engine' => self::class,
                 'parser' => $parsedDocument->metadata['parser'] ?? $this->structureParser::class,
+                'detector' => $this->signalDetector::class,
                 'input_metadata' => $options->metadata,
                 'renderer_configured' => $this->renderer instanceof RendererInterface,
                 'interpretation_enabled' => $options->interpretationEnabled,

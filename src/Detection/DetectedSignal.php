@@ -8,7 +8,8 @@ final class DetectedSignal
 {
     public function __construct(
         public readonly string $type,
-        public readonly string $label = '',
+        public readonly float $confidence,
+        public readonly array $evidence = [],
         public readonly array $metadata = [],
     ) {
     }
@@ -17,7 +18,8 @@ final class DetectedSignal
     {
         return [
             'type' => $this->type,
-            'label' => $this->label,
+            'confidence' => $this->confidence,
+            'evidence' => $this->evidence,
             'metadata' => $this->metadata,
         ];
     }
